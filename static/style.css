@@ -1,0 +1,53 @@
+/*Adress in footer is too big for small screens*/
+/*Replace it with smaller version for small screens*/
+@media (max-width: 750px) {                  
+    .address {
+       display: none;
+    }
+}
+.address-maps {
+    display: none;
+}
+@media (max-width: 750px) {
+    .address-maps {
+       display: block;
+    }
+}
+
+/* Transition for load unload of pages */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+body {
+    opacity: 0;
+    animation: 1.5s ease-out 0s 1 fadeIn;
+    animation-fill-mode: both;
+    background-image: url('fond.jpg');
+}
+
+/* Hover over manu items create a shadow*/
+.nav-link:hover {
+    text-decoration: underline;
+    text-shadow: 2px 2px 5px;
+}
+/* Alpha background of navbar is really low*/
+.navbar, .navbar-nav, .nav-itme, .navbar-expand-sm {
+    background-color: rgba(250, 250, 250, 0.5);
+}
+
+/* navbar items centralized*/
+.navbar-nav {
+    float:none;
+    margin:0 auto;
+    display: block;
+    text-align: center;
+}
+.navbar-nav > li {
+    display: inline-block;
+    float:none;
+}

@@ -1,0 +1,20 @@
+<!--<div class="jumbotron m-0"
+    style="opacity:0.6;background: url( {{ url_for('static', filename='logo.gif') }}) no-repeat center;">
+</div>-->
+<nav class="navbar navbar-expand justify-content-center mb-2 rounded mt-0">
+    <img class="navbar-brand" style="opacity:0.5;" src="{{ url_for('static', filename='logo.gif') }}"></img>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav">
+            <li class="nav-item mx-4">
+                <button class="nav-link btn" onclick="transitionToPage('index.html')">Acceuil</button>
+            </li>
+            <li class="nav-item mx-4">
+                <button class="nav-link btn" onclick="transitionToPage('contact.html')">Contact</button>
+            </li>
+        </ul>
+    </div>
+</nav>

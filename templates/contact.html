@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% include 'header.html' %}
+
+<body>
+    <div class="container">
+        {% include 'menu.html' %}
+        <form class="my-3" action="email.sh" id="contact">
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label for="name">Nom:</label>
+                    <input class="form-control" type="text" placeholder="Nom" id="name" />
+                </div>
+                <div class="form-group col-6">
+                    <label for="from">Email:</label>
+                    <input class="form-control" type="email" placeholder="Email" id="from" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-6">
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label for="subject">Sujet:</label>
+                            <input class="form-control" type="text" placeholder="Sujet" id="subject" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label for="message">Message:</label>
+                            <textarea class="form-control" id="message" placeholder="Message" rows="8"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <iframe class="col-6" frameborder="0" scrolling="no"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=10.269255638122559%2C36.74780808672415%2C10.2907133102417%2C36.760427101939335&amp;layer=mapnik&amp;marker=36.754117853791584%2C10.279984474182129">
+                </iframe>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <input type="submit" class="btn-primary float-left" value="Envoyer" />
+                </div>
+            </div>
+        </form>
+        {% include 'footer.html' %}
+    </div>
+</body>
+
+</html>
