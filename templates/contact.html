@@ -7,7 +7,7 @@
         {% include 'menu.html' %}
         <div class="row mt-5">
           <div class="col-3"></div>
-        <form class="col-6 " action="email.sh" id="contact" style="display: inline-block;">
+        <form class="col-6" action="email" id="contact" style="display: inline-block;">
             <div class="form-row my-3">
                     <input class="form-control" type="text" placeholder="Nom" id="name" style="background-color:rgba(255,255,255,0.5);"/>
             </div>
@@ -20,7 +20,11 @@
             <div class="form-row my-3">
                 <textarea class="form-control" id="message" placeholder="Message" rows="8" style="background-color:rgba(255,255,255,0.5);"></textarea>
             </div>
-            <input type="submit" class="btn-primary my-3" value="Envoyer" />
+            <div class="row">
+              <div class="col-5"></div>
+              <input type="submit" class="btn-light my-3 col-2" value="Envoyer" style="background-color:rgba(242,242,242,0.5)"/>
+              <div class="col-5"></div>
+            </div>
         </form>
           <div class="col-3"></div>
         </div>
