@@ -2,45 +2,28 @@
 <html lang="fr">
 {% include 'header.html' %}
 
-<body style="background-position: left bottom;background-repeat:repeat-x;">
+<body>
     <div class="container">
         {% include 'menu.html' %}
-        <form class="my-3" action="email.sh" id="contact">
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label for="name">Nom:</label>
-                    <input class="form-control" type="text" placeholder="Nom" id="name" />
-                </div>
-                <div class="form-group col-6">
-                    <label for="from">Email:</label>
-                    <input class="form-control" type="email" placeholder="Email" id="from" />
-                </div>
+        <div class="row mt-5">
+          <div class="col-3"></div>
+        <form class="col-6 " action="email.sh" id="contact" style="display: inline-block;">
+            <div class="form-row my-3">
+                    <input class="form-control" type="text" placeholder="Nom" id="name" style="background-color:rgba(255,255,255,0.5);"/>
             </div>
-            <div class="form-row">
-                <div class="col-6">
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <label for="subject">Sujet:</label>
-                            <input class="form-control" type="text" placeholder="Sujet" id="subject" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <label for="message">Message:</label>
-                            <textarea class="form-control" id="message" placeholder="Message" rows="8"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=10.732859373092653%2C36.44921447917659%2C10.739554166793825%2C36.45304183486259&amp;layer=mapnik&amp;marker=36.451126023153165%2C10.736206769943237" style="border: 1px solid black">
-                </iframe>
+            <div class="form-row my-3">
+                    <input class="form-control" type="email" placeholder="Email" id="from" style="background-color:rgba(255,255,255,0.5);"/>
             </div>
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <input type="submit" class="btn-primary float-left" value="Envoyer" />
-                </div>
+            <div class="form-row my-3">
+                <input class="form-control" type="text" placeholder="Sujet" id="subject" style="background-color:rgba(255,255,255,0.5);"/>
             </div>
+            <div class="form-row my-3">
+                <textarea class="form-control" id="message" placeholder="Message" rows="8" style="background-color:rgba(255,255,255,0.5);"></textarea>
+            </div>
+            <input type="submit" class="btn-primary my-3" value="Envoyer" />
         </form>
+          <div class="col-3"></div>
+        </div>
         {% include 'footer.html' %}
     </div>
 </body>

@@ -28,6 +28,7 @@ body {
     animation: 1.5s ease-out 0s 1 fadeIn;
     animation-fill-mode: both;
     background: url('logo.gif') no-repeat fixed center;
+    background-color: #f2f2f2;
 }
 
 /* Hover over manu items create a shadow*/
