@@ -1,6 +1,6 @@
 /*Adress in footer is too big for small screens*/
 /*Replace it with smaller version for small screens*/
-@media (max-width: 750px) {                  
+@media (max-width: 750px) {
     .address {
        display: none;
     }
@@ -27,7 +27,7 @@ body {
     opacity: 0;
     animation: 1.5s ease-out 0s 1 fadeIn;
     animation-fill-mode: both;
-    background-image: url('fond.jpg');
+    background: url('logo.gif') no-repeat fixed center;
 }
 
 /* Hover over manu items create a shadow*/
