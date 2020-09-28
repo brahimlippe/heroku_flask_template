@@ -38,7 +38,7 @@ body {
 }
 /* Alpha background of navbar is really low*/
 .navbar, .navbar-nav, .nav-itme, .navbar-expand-sm {
-    background-color: rgba(250, 250, 250, 0.5);
+    background-color: rgba(250, 250, 250, 0);
 }
 
 /* navbar items centralized*/
@@ -51,4 +51,16 @@ body {
 .navbar-nav > li {
     display: inline-block;
     float:none;
+}
+.nav-link:focus,.nav-link:active {
+   box-shadow: 5px 5px 10px 10px #e0e0e0;
+}
+.form-control {
+  background-color: rgba(0,0,0,0);
+}
+.form-control:focus {
+  box-shadow: 1px 1px 2px 3px #e0e0e0;
+  outline: 1px;
+  border-color: #f0f0f0;
+  background-color: #FFFFFF;
 }
