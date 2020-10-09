@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% include 'header.html' %}
+
+<body>
+    <div class="container">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show d-flex justify-content-center">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <div class="text-center">{{ message }}</div>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+{% include 'menu.html' %}
+    <div class="row justify-content-center" style="margin-top: 80px">
+    <form style="opacity:0.5" action="login.html" method="post" class="col-4"> {{ form.csrf }}
+      <div class="form-row my-3"> {{ form.username }} </div>
+      <div class="form-row my-3"> {{ form.password }} </div>
+      <div class="form-row my-3 center"> {{ form.submit }} </div>
+    </form>
+    </div>
+{% include 'footer.html' %}
+    </div>
+</body>
+
+</html>
+

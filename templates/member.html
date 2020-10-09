@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% include 'header.html' %}
+
+<body>
+    <div class="container">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show d-flex justify-content-center">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <div class="text-center">{{ message }}</div>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+{% include 'menu.html' %}
+    <button class="btn" onclick="transitionToPage('logout.html')">Deconnexion</button>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Nom</th>
+          <th scope="col">Etat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td>Mark</td>
+          <td>Fini</td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td>Jacob</td>
+          <td>En attente du STL</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td>Larry</td>
+          <td>En attente du paiement</td>
+        </tr>
+      </tbody>
+    </table>
+{% include 'footer.html' %}
+    </div>
+</body>
+
+</html>
+
