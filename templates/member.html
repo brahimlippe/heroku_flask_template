@@ -6,12 +6,12 @@
     <div class="container">
 {% include 'menu.html' %}
     <div class="row justify-content-center" style="margin-top: 80px">
-    <form style="opacity:0.5" action="" method="post" class="col-4"> {{ form.csrf }}
-      <div class="form-row my-3"> {{ form.name }} </div>
-      <div class="form-row my-3 center"> {{ form.submit }} </div>
-    </form>
+      <form style="opacity:0.5" action="" method="post"> {{ form.csrf }}
+        <div class="form-row my-3"> {{ form.name }} </div>
+        <div class="form-row my-3"> {{ form.submit }} </div>
+      </form>
     </div>
-    <table class="table table-hover table-striped" data-toggle="table" data-pagination="true" data-search="true" data-pagination-parts="['pageSize', 'pageList']">
+    <table is="files" class="table table-hover table-striped" data-toggle="table" data-pagination="true" data-search="true" data-pagination-parts="['pageSize', 'pageList']">
       <thead>
         <tr>
           <th scope="col" data-sortable="true" scope="col">Nom</th>
@@ -20,7 +20,7 @@
       </thead>
       <tbody>
 {% for file in files %}
-        <tr>
+        <tr style="position:relative">
           <td scope="row"> {{ file.name }} </td>
           <td> {{ file.state }}</td>
         </tr>
@@ -29,6 +29,33 @@
     </table>
 {% include 'footer.html' %}
     </div>
+  <div id="contextMenu" class="dropdown clearfix" style="position: absolute; display: none;">
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+      <li><a tabindex="-1" href="#" class='dropdown-item'>Ouvrir</a></li>
+      <li><a tabindex="-1" href="#" class="dropdown-item">Supprimer</a></li>
+    </ul>
+  </div>
+  <script>
+    $(function() {
+
+      var $contextMenu = $("#contextMenu");
+
+      $("body").on("contextmenu", "table tr", function(e) {
+        $contextMenu.css({
+          display: "block",
+          left: e.pageX,
+          top: e.pageY
+        });
+        return false;
+      });
+    $('html').click(function() { $contextMenu.hide(); });
+
+    $("#contextMenu li a").click(function(e){
+      var f = $(this);
+    });
+
+});
+  </script>
 </body>
 
 </html>
