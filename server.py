@@ -26,7 +26,7 @@ class User(db.Model):
     __tablename__ = 'user'
 
     name = db.Column(db.String, primary_key=True)
-    password = db.Column(db.String)
+    password = db.Column(db.String, nullable=False)
     authenticated = db.Column(db.Boolean, default=False)
 
     def is_active(self):
@@ -57,7 +57,7 @@ class File(db.Model):
     """
 
     name = db.Column(db.String, primary_key=True)
-    doctor_name = db.Column(db.String, primary_key=True)
+    doctor_name = db.Column(db.String, db.ForeignKey('user.name'))
 
     def __repr__(self):
         return '<File %r / %r>' % (self.name, self.doctor_name)

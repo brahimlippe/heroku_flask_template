@@ -15,12 +15,12 @@
   {% endif %}
 {% endwith %}
 {% include 'menu.html' %}
-    <table class="table table-hover table-striped">
+    <table class="table table-hover table-striped" data-toggle="table" data-pagination="true" data-search="true" data-pagination-parts="['pageSize', 'pageList']">
       <thead>
         <tr>
           <th scope="col">#</th>
-          <th scope="col">Nom</th>
-          <th scope="col">Etat</th>
+          <th data-sortable="true" scope="col">Nom</th>
+          <th data-sortable="true" scope="col">Etat</th>
         </tr>
       </thead>
       <tbody>
