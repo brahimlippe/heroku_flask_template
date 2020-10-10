@@ -1,5 +1,5 @@
 from os import urandom
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, g
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
 from wtforms import Form, StringField, validators, SubmitField, PasswordField
@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 class User(db.Model):
-    """An admin user capable of viewing reports.
+    """A user capable of viewing reports.
 
     :param str name: name address of user
     :param str password: encrypted password for the user
@@ -47,6 +47,20 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.name
+
+class File(db.Model):
+    """A treatment file
+
+    :param str name: File name
+    :param str doctor_name: Doctor that created files
+
+    """
+
+    name = db.Column(db.String, primary_key=True)
+    doctor_name = db.Column(db.String, primary_key=True)
+
+    def __repr__(self):
+        return '<File %r / %r>' % (self.name, self.doctor_name)
 
 class LoginForm(Form):
     username = StringField('name', validators=[validators.required()], render_kw={'placeholder':'Nom'})
@@ -84,6 +98,10 @@ def logout():
     logout_user()
     return render_template("index.html")
 
+@app.before_request
+def load_logged_in_user():
+    g.current_user = current_user
+
 @app.route('/login.html', methods=['POST'])
 def login():
     form = LoginForm(request.form)
@@ -99,7 +117,8 @@ def login():
 
 @app.route('/member.html')
 @login_required
-def member(): return render_template("member.html")
+def member():
+    return render_template("member.html")
 
 @app.route('/contact.html')
 def contact(): return render_template('contact.html')

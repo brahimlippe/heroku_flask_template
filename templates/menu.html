@@ -14,6 +14,11 @@
             <li class="nav-item mx-4">
                 <button class="nav-link btn" onclick="transitionToPage('contact.html')">Contact</button>
             </li>
+            {% if g.current_user.is_authenticated %}
+            <li class="nav-item mx-4">
+                <button class="nav-link btn" onclick="transitionToPage('logout.html')">Logout</button>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </nav>
