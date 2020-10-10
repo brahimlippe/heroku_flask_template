@@ -58,6 +58,7 @@ class File(db.Model):
 
     name = db.Column(db.String, primary_key=True)
     doctor_name = db.Column(db.String, db.ForeignKey('user.name'))
+    state = db.Column(db.String, default="Nouveau")
 
     def __repr__(self):
         return '<File %r / %r>' % (self.name, self.doctor_name)
@@ -66,6 +67,10 @@ class LoginForm(Form):
     username = StringField('name', validators=[validators.required()], render_kw={'placeholder':'Nom'})
     password = PasswordField('password', validators=[validators.required()], render_kw={'placeholder':'Mot de passe'})
     submit = SubmitField('submit', render_kw={'value': 'Connexion'})
+
+class NewFileForm(Form):
+    name = StringField('name', validators=[validators.required()], render_kw={'placeholder':'Nom du dossier'})
+    submit = SubmitField('submit', render_kw={'value': 'Nouveau dossier'})
 
 @login_manager.user_loader
 def load_user(user_id): return User.query.get(user_id)
@@ -115,10 +120,16 @@ def login():
             return redirect(url_for("member"))
     return render_template('login.html', form=form)
 
-@app.route('/member.html')
+@app.route('/member.html', methods=['GET', 'POST'])
 @login_required
 def member():
-    return render_template("member.html")
+    form = NewFileForm(request.form)
+    if request.method == "POST" and form.validate():
+        file = File(name=form.name.data, doctor_name=current_user.name)
+        db.session.add(file)
+        db.session.commit()
+    files = File.query.filter_by(doctor_name=current_user.name)
+    return render_template("member.html", form=form, files=files)
 
 @app.route('/contact.html')
 def contact(): return render_template('contact.html')
