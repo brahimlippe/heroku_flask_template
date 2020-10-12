@@ -64,13 +64,17 @@ class File(db.Model):
         return '<File %r / %r>' % (self.name, self.doctor_name)
 
 class LoginForm(Form):
-    username = StringField('name', validators=[validators.required()], render_kw={'placeholder':'Nom'})
-    password = PasswordField('password', validators=[validators.required()], render_kw={'placeholder':'Mot de passe'})
-    submit = SubmitField('submit', render_kw={'value': 'Connexion'})
+    username = StringField(validators=[validators.required()], render_kw={'placeholder':'Nom'})
+    password = PasswordField(validators=[validators.required()], render_kw={'placeholder':'Mot de passe'})
+    submit = SubmitField(render_kw={'value': 'Connexion'})
+
+def duplicate_name_check(form, field):
+    File.query.filter_by(name=form.name.data)
+    return File == None
 
 class NewFileForm(Form):
-    name = StringField('name', validators=[validators.required()], render_kw={'placeholder':'Nom du dossier'})
-    submit = SubmitField('submit', render_kw={'value': 'Nouveau dossier'})
+    name = StringField(validators=[validators.required(), duplicate_name_check], render_kw={'placeholder':'Nom du dossier'})
+    submit = SubmitField(render_kw={'value': 'Nouveau dossier'})
 
 @login_manager.user_loader
 def load_user(user_id): return User.query.get(user_id)
