@@ -2,9 +2,12 @@ from os import urandom
 from flask import Flask, render_template, redirect, url_for, flash, request, g
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from wtforms import Form, StringField, validators, SubmitField, PasswordField
+from wtforms import Form, StringField, validators, SubmitField, PasswordField, FileField
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt, check_password_hash
+from werkzeug.utils import secure_filename
+from os import path, mkdir
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = urandom(16)
@@ -15,6 +18,8 @@ login_manager.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./database.sqlite'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = path.dirname(path.realpath(__file__)) + '/uploads'
 
 class User(db.Model):
     """A user capable of viewing reports.
@@ -48,7 +53,7 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
-class File(db.Model):
+class PatientFiles(db.Model):
     """A treatment file
 
     :param str name: File name
@@ -61,7 +66,7 @@ class File(db.Model):
     state = db.Column(db.String, default="Nouveau")
 
     def __repr__(self):
-        return '<File %r / %r>' % (self.name, self.doctor_name)
+        return '<PatientFiles %r / %r>' % (self.name, self.doctor_name)
 
 class LoginForm(Form):
     username = StringField(validators=[validators.required()], render_kw={'placeholder':'Nom'})
@@ -69,12 +74,16 @@ class LoginForm(Form):
     submit = SubmitField(render_kw={'value': 'Connexion'})
 
 def duplicate_name_check(form, field):
-    File.query.filter_by(name=field.data)
-    return File != None
+    PatientFiles.query.filter_by(name=field.data)
+    return PatientFiles != None
 
 class NewFileForm(Form):
     name = StringField(validators=[validators.required(), duplicate_name_check], render_kw={'placeholder':'Nom du dossier'})
     submit = SubmitField(render_kw={'value': 'Nouveau dossier'})
+
+class UploadFileForm(Form):
+    file = FileField('Fichier')
+    submit = SubmitField(render_kw={'value': 'Télécharger un fichier'})
 
 @login_manager.user_loader
 def load_user(user_id): return User.query.get(user_id)
@@ -129,20 +138,45 @@ def login():
 def member():
     form = NewFileForm(request.form)
     if request.method == "POST" and form.validate():
-        file = File(name=form.name.data, doctor_name=current_user.name)
+        file = PatientFiles(name=form.name.data, doctor_name=current_user.name)
         db.session.add(file)
         db.session.commit()
-    files = File.query.filter_by(doctor_name=current_user.name)
+    files = PatientFiles.query.filter_by(doctor_name=current_user.name)
     return render_template("/member.html", form=form, files=files)
 
 @app.route('/contact.html')
 def contact(): return render_template('contact.html')
 
-@app.route('/file/<file_name>')
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/file/<patient_file_name>', methods=['GET', 'POST'])
 @login_required
-def file(file_name):
-    file = File.query.filter_by(name=file_name, doctor_name=current_user.name)
-    return render_template("/file.html", file=file)
+def patient_file(patient_file_name):
+    form = UploadFileForm()
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('Aucun fichier trouvé', 'error')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('Aucun fichier')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            extension = filename[-4:]
+            base_name = filename[:-4]
+            filename = base_name + datetime.now().isoformat(timespec='microseconds') + extension
+            new_dir = path.join(app.config['UPLOAD_FOLDER'], current_user.name)
+            if not path.exists(new_dir): mkdir(new_dir)
+            new_path = path.join(new_dir, filename)
+            file.save(new_path)
+            return redirect(request.url)
+    file = PatientFiles.query.filter_by(name=patient_file_name, doctor_name=current_user.name)
+    return render_template("/file.html", file=file, form=form)
 
 login_manager.unauthorized_handler(login)
 
