@@ -69,8 +69,8 @@ class LoginForm(Form):
     submit = SubmitField(render_kw={'value': 'Connexion'})
 
 def duplicate_name_check(form, field):
-    File.query.filter_by(name=form.name.data)
-    return File == None
+    File.query.filter_by(name=field.data)
+    return File != None
 
 class NewFileForm(Form):
     name = StringField(validators=[validators.required(), duplicate_name_check], render_kw={'placeholder':'Nom du dossier'})
@@ -105,7 +105,7 @@ def logout():
     db.session.add(user)
     db.session.commit()
     logout_user()
-    return render_template("index.html")
+    return render_template("/index.html")
 
 @app.before_request
 def load_logged_in_user():
@@ -122,7 +122,7 @@ def login():
             db.session.commit()
             login_user(user, remember=True)
             return redirect(url_for("member"))
-    return render_template('login.html', form=form)
+    return render_template('/login.html', form=form)
 
 @app.route('/member.html', methods=['GET', 'POST'])
 @login_required
@@ -133,10 +133,16 @@ def member():
         db.session.add(file)
         db.session.commit()
     files = File.query.filter_by(doctor_name=current_user.name)
-    return render_template("member.html", form=form, files=files)
+    return render_template("/member.html", form=form, files=files)
 
 @app.route('/contact.html')
 def contact(): return render_template('contact.html')
+
+@app.route('/file/<file_name>')
+@login_required
+def file(file_name):
+    file = File.query.filter_by(name=file_name, doctor_name=current_user.name)
+    return render_template("/file.html", file=file)
 
 login_manager.unauthorized_handler(login)
 

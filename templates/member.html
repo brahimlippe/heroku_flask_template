@@ -11,10 +11,11 @@
         <div class="form-row my-3"> {{ form.submit }} </div>
       </form>
     </div>
-    <table is="files" class="table table-hover table-striped" data-toggle="table" data-pagination="true" data-search="true" data-pagination-parts="['pageSize', 'pageList']">
+    <table class="table table-hover table-striped" data-toggle="table" data-pagination="true"
+           data-search="true" data-pagination-parts="['pageSize', 'pageList']">
       <tbody>
 {% for file in files %}
-        <tr style="position:relative">
+        <tr style="position:relative" onclick="transitionToPage('file/{{ file.name }}')">
           <td scope="row"> {{ file.name }} </td>
           <td> {{ file.state }}</td>
         </tr>

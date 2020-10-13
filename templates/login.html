@@ -6,7 +6,7 @@
     <div class="container">
 {% include 'menu.html' %}
     <div class="row justify-content-center" style="margin-top: 80px">
-    <form style="opacity:0.5" action="login.html" method="post" class="col-4"> {{ form.csrf }}
+    <form style="opacity:0.5" action="/login.html" method="post" class="col-4"> {{ form.csrf }}
       <div class="form-row my-3"> {{ form.username }} </div>
       <div class="form-row my-3"> {{ form.password }} </div>
       <div class="form-row my-3 center"> {{ form.submit }} </div>

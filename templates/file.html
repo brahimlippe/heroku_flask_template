@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% include 'header.html' %}
+
+<body>
+    <div class="container">
+{% include 'menu.html' %}
+{% if file.first() %}
+    <p>File of {{ file[0].name }} opened</p>
+{% else %}
+    <p>Un probléme est survenu. Le fichier ne peut être retrouvé</p>
+{% endif %}
+{% include 'footer.html' %}
+    </div>
+</body>
+
+</html>
+
+
