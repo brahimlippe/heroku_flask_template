@@ -16,17 +16,17 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav">
             <li class="nav-item mx-4">
-                <button class="nav-link btn" onclick="transitionToPage('index.html')">Acceuil</button>
+                <button class="nav-link btn" onclick="transitionToPage('/index.html')">Acceuil</button>
             </li>
             <li class="nav-item mx-4">
-                <button class="nav-link btn" onclick="transitionToPage('member.html')">Espace Membre</button>
+                <button class="nav-link btn" onclick="transitionToPage('/member.html')">Espace Membre</button>
             </li>
             <li class="nav-item mx-4">
-                <button class="nav-link btn" onclick="transitionToPage('contact.html')">Contact</button>
+                <button class="nav-link btn" onclick="transitionToPage('/contact.html')">Contact</button>
             </li>
             {% if g.current_user.is_authenticated %}
             <li class="nav-item mx-4">
-                <button class="nav-link btn" onclick="transitionToPage('logout.html')">Deconnexion</button>
+                <button class="nav-link btn" onclick="transitionToPage('/logout.html')">Deconnexion</button>
             </li>
             {% endif %}
         </ul>
