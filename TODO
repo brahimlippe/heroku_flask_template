@@ -1,3 +1,8 @@
-Make contact form work
-Make a registration mechanism
-Users can only have a user name with ascii letters
+Make contact form work.
+Make a registration mechanism.
+Users can only have a user name with ascii letters.
+A user cannot access another users' documents.
+An unconnected user canot access documents.
+Only pictures allowed.
+Admin page: access all files. Send a registration offer.
+Chat box in patient page
