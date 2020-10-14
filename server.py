@@ -92,7 +92,7 @@ class NewFileForm(Form):
 
 class UploadFileForm(Form):
     files = MultipleFileField('Fichier', render_kw={'onchange':'document.getElementById("output").src = window.URL.createObjectURL(this.files[0]);document.getElementById("output").style.visibility="visible";'})
-    submit = SubmitField(render_kw={'value': 'Télécharger un fichier'})
+    submit = SubmitField(render_kw={'value': 'Envoyer le(s) fichier'})
 
 @login_manager.user_loader
 def load_user(user_id): return User.query.get(user_id)
@@ -159,13 +159,25 @@ def contact(): return render_template('contact.html')
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route('/valider/<int:id>')
+@login_required
+def valider(id):
+    patient_files = PatientFiles.query.get(id)
+    if patient_files.doctor_name != current_user.name:
+        flash('Vous n\'avez pas le droit de modifier ce fichier', 'danger')
+    else:
+        patient_files.state = "Ouvert"
+        db.session.commit()
+    return redirect('/file/' + patient_files.name);
+
 @app.route('/file/<patient_file_name>', methods=['GET', 'POST'])
 @login_required
 def patient_file(patient_file_name):
-    patients_file = PatientFiles(name=patient_file_name, doctor_name=current_user.name)
-    if patients_file == None:
+    patient_files = PatientFiles.query.filter_by(name=patient_file_name, doctor_name=current_user.name)
+    if patient_files == None or patient_files.first() == None:
         flash('Dossier inconnu', 'danger')
         return redirect(requst.url)
+    patient_files = patient_files.first()
     form = UploadFileForm(request.form)
     if request.method == 'POST' and form.validate():
         # check if the post request has the file part
@@ -187,12 +199,13 @@ def patient_file(patient_file_name):
             if not path.exists(new_dir): makedirs(new_dir, exist_ok=True)
             new_path = path.join(new_dir, filename)
             file.save(new_path)
-            db_file = File(name=file.filename, path=new_path, patient_files=patients_file.id)
+            db_file = File(name=file.filename, path=new_path, patient_files=patient_files.id)
             db.session.add(db_file)
             db.session.commit()
         return redirect(request.url)
-    files = File.query.filter_by(patient_files=patients_file.id)
-    return render_template("/file.html", files=[path.basename(file.path) for file in files ], form=form)
+    files = [ path.basename(file.path) for file in File.query.filter_by(patient_files=patient_files.id) ]
+    return render_template("/file.html", files=files, form=form,
+                           state=patient_files.state, id=patient_files.id)
 
 @app.route('/uploads/<filename>')
 @login_required
