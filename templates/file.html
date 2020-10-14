@@ -13,16 +13,22 @@
           <div class="form-row my-3">{{ form.submit }}</div>
         </form>
     </div>
+{% if files | length > 0 %}
     <div class="d-flex overflow-auto border p-2" style="opacity:0.8" style="overflow:auto;">
-{% for file in files %}
+    {% for file in files %}
    <div class="thumbnail mx-4">
      <a href="/uploads/{{ file }}">
        <img src="/uploads/{{ file }}" alt="Lights" style="height:150px">
        <div class="caption">{{ file }}</div>
      </a>
    </div>
-{% endfor %}
+    {% endfor %}
     </div>
+{% else %}
+    <div class="row justify-content-center" >
+        <h5> Dossier vide.</h5>
+    </div>
+{% endif %}
 {% include 'footer.html' %}
     </div>
 </body>
