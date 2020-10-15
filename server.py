@@ -32,6 +32,7 @@ class User(db.Model):
     name = db.Column(db.String, primary_key=True)
     password = db.Column(db.String, nullable=False)
     authenticated = db.Column(db.Boolean, default=False)
+    admin = db.Column(db.Boolean, default=False)
 
     def is_active(self):
         """True, as all users are active."""
@@ -139,8 +140,17 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
+            if user.admin:
+                return redirect(url_for("admin"))
             return redirect(url_for("member"))
     return render_template('/login.html', form=form)
+
+@app.route('/admin.html', methods=['GET'])
+@login_required
+def admin():
+    if not current_user.admin:
+        return redirect(url_for('member'))
+    return "Page administrateur"
 
 @app.route('/member.html', methods=['GET', 'POST'])
 @login_required
