@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request, g, 
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
 from wtforms import Form, StringField, validators, SubmitField, PasswordField, MultipleFileField
+from wtforms.fields.html5 import EmailField
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt, check_password_hash
 from werkzeug.utils import secure_filename
@@ -91,6 +92,14 @@ class NewFileForm(Form):
     name = StringField(validators=[validators.required(), duplicate_name_check], render_kw={'placeholder':'Nom du dossier'})
     submit = SubmitField(render_kw={'value': 'Nouveau dossier'})
 
+def duplicate_doctor_name_check(form, field):
+    User.query.filter_by(doctor_name=field.data)
+    return PatientFiles != None
+class RegisterForm(Form):
+    mail = EmailField(validators=[validators.required(), duplicate_doctor_name_check],
+                       render_kw={'placeholder':'Email client'})
+    submit = SubmitField(render_kw={'value': 'Envoyer email d\'enregistrement'})
+
 class UploadFileForm(Form):
     files = MultipleFileField('Fichier', render_kw={'onchange':'document.getElementById("output").src = window.URL.createObjectURL(this.files[0]);document.getElementById("output").style.visibility="visible";'})
     submit = SubmitField(render_kw={'value': 'Envoyer le(s) fichier'})
@@ -140,17 +149,25 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
-            if user.admin:
-                return redirect(url_for("admin"))
+            if user.admin: return redirect(url_for("admin"))
             return redirect(url_for("member"))
     return render_template('/login.html', form=form)
 
+@app.route('/register.html', methods=['POST'])
+@login_required
+def register():
+    if not current_user.admin:
+        flash('Vous n\'avez pas le droit d\'enregistrer un client', 'danger')
+        return redirect(url_for('index'))
+    flash('Fonctionalité indisponible', 'danger')
+    return redirect(url_for('admin'))
 @app.route('/admin.html', methods=['GET'])
 @login_required
 def admin():
-    if not current_user.admin:
-        return redirect(url_for('member'))
-    return "Page administrateur"
+    form = RegisterForm(request.form)
+    if not current_user.admin: return redirect(url_for('member'))
+    files = PatientFiles.query.all()
+    return render_template('admin.html', files = files, form = form)
 
 @app.route('/member.html', methods=['GET', 'POST'])
 @login_required
@@ -183,10 +200,13 @@ def valider(id):
 @app.route('/file/<patient_file_name>', methods=['GET', 'POST'])
 @login_required
 def patient_file(patient_file_name):
-    patient_files = PatientFiles.query.filter_by(name=patient_file_name, doctor_name=current_user.name)
+    if not current_user.admin:
+        patient_files = PatientFiles.query.filter_by(name=patient_file_name, doctor_name=current_user.name)
+    else:
+        patient_files = PatientFiles.query.filter_by(name=patient_file_name)
     if patient_files == None or patient_files.first() == None:
         flash('Dossier inconnu', 'danger')
-        return redirect(requst.url)
+        return redirect(reqeust.url)
     patient_files = patient_files.first()
     form = UploadFileForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -205,7 +225,7 @@ def patient_file(patient_file_name):
             extension = filename[-4:]
             base_name = filename[:-4]
             filename = base_name + datetime.now().isoformat(timespec='microseconds') + extension
-            new_dir = path.join(app.config['UPLOAD_FOLDER'], current_user.name)
+            new_dir = path.join(app.config['UPLOAD_FOLDER'], patient_files.doctor_name)
             if not path.exists(new_dir): makedirs(new_dir, exist_ok=True)
             new_path = path.join(new_dir, filename)
             file.save(new_path)
@@ -213,7 +233,10 @@ def patient_file(patient_file_name):
             db.session.add(db_file)
             db.session.commit()
         return redirect(request.url)
-    files = [ path.basename(file.path) for file in File.query.filter_by(patient_files=patient_files.id) ]
+    if not current_user.admin:
+        files = [ path.basename(file.path) for file in File.query.filter_by(patient_files=patient_files.id) ]
+    else:
+        files = [ path.basename(file.path) for file in File.query.all() ]
     return render_template("/file.html", files=files, form=form,
                            state=patient_files.state, id=patient_files.id)
 
