@@ -190,11 +190,11 @@ def allowed_file(filename):
 @login_required
 def valider(id):
     patient_files = PatientFiles.query.get(id)
-    if patient_files.doctor_name != current_user.name:
+    if patient_files.doctor_name != current_user.name and not current_user.admin:
         flash('Vous n\'avez pas le droit de modifier ce fichier', 'danger')
-        return redirect(url_for('index'))
-    if patient_files.state == 'Nouveau': patient_files.state = "Ouvert"
-    elif patient_files.state == 'Ouvert': patient_files.state = "Valide"
+        return redirect(url_for("index"))
+    if patient_files.state == "Nouveau": patient_files.state = "Ouvert"
+    elif patient_files.state == "Ouvert": patient_files.state = "Valide"
     elif patient_files.state == "Valide": patient_files.state = "En attente de l'avance"
     elif patient_files.state == "En attente de l'avance": patient_files.state = "En attente STL"
     elif patient_files.state == "En attente STL": patient_files.state = "STL valide"
