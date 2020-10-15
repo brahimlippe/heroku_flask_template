@@ -22,8 +22,6 @@
 {% endfor %}
       </tbody>
     </table>
-{% include 'footer.html' %}
-    </div>
   <div id="contextMenu" class="dropdown clearfix" style="position: absolute; display: none;">
     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
       <li><a tabindex="-1" href="#" class='dropdown-item'>Ouvrir</a></li>
@@ -32,6 +30,11 @@
   </div>
   <script>
     $(function() {
+      $('#member_files_table').bootstrapTable({
+        formatNoMatches: function () {
+          return 'Aucun dossier en base';
+        }
+      });
 
       var $contextMenu = $("#contextMenu");
 
@@ -48,13 +51,10 @@
       $("#contextMenu li a").click(function(e){
         var f = $(this);
       });
-      $('#member_files_table').bootstrapTable({
-        formatNoMatches: function () {
-          return 'Aucun dossier en base';
-        }
-      });
     });
   </script>
+{% include 'footer.html' %}
+    </div>
 </body>
 
 </html>
