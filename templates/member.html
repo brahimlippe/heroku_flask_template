@@ -11,7 +11,7 @@
         <div class="form-row my-3"> {{ form.submit }} </div>
       </form>
     </div>
-    <table class="table table-hover table-striped" data-toggle="table" data-pagination="true"
+    <table id="member_files_table" class="table table-hover table-striped" data-toggle="table" data-pagination="true"
            data-search="true" data-pagination-parts="['pageSize', 'pageList']">
       <tbody>
 {% for file in files %}
@@ -43,13 +43,17 @@
         });
         return false;
       });
-    $('html').click(function() { $contextMenu.hide(); });
+      $('html').click(function() { $contextMenu.hide(); });
 
-    $("#contextMenu li a").click(function(e){
-      var f = $(this);
+      $("#contextMenu li a").click(function(e){
+        var f = $(this);
+      });
+      $('#member_files_table').bootstrapTable({
+        formatNoMatches: function () {
+          return 'Aucun dossier en base';
+        }
+      });
     });
-
-});
   </script>
 </body>
 

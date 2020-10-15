@@ -101,8 +101,8 @@ class RegisterForm(Form):
     submit = SubmitField(render_kw={'value': 'Envoyer email d\'enregistrement'})
 
 class UploadFileForm(Form):
-    files = MultipleFileField('Fichier', render_kw={'onchange':'document.getElementById("output").src = window.URL.createObjectURL(this.files[0]);document.getElementById("output").style.visibility="visible";'})
-    submit = SubmitField(render_kw={'value': 'Envoyer le(s) fichier'})
+    files = MultipleFileField('Fichier', render_kw={'onchange':'document.getElementById("output").src = window.URL.createObjectURL(this.files[0]);document.getElementById("output").style.visibility="visible";form.submit()'})
+    submit = SubmitField(render_kw={'value': 'Rajouter le(s) fichier(s) dans le dossier'})
 
 @login_manager.user_loader
 def load_user(user_id): return User.query.get(user_id)
@@ -192,9 +192,13 @@ def valider(id):
     patient_files = PatientFiles.query.get(id)
     if patient_files.doctor_name != current_user.name:
         flash('Vous n\'avez pas le droit de modifier ce fichier', 'danger')
-    else:
-        patient_files.state = "Ouvert"
-        db.session.commit()
+        return redirect(url_for('index'))
+    if patient_files.state == 'Nouveau': patient_files.state = "Ouvert"
+    elif patient_files.state == 'Ouvert': patient_files.state = "Valide"
+    elif patient_files.state == "Valide": patient_files.state = "En attente de l'avance"
+    elif patient_files.state == "En attente de l'avance": patient_files.state = "En attente STL"
+    elif patient_files.state == "En attente STL": patient_files.state = "STL valide"
+    db.session.commit()
     return redirect('/file/' + patient_files.name);
 
 @app.route('/file/<patient_file_name>', methods=['GET', 'POST'])
@@ -206,7 +210,7 @@ def patient_file(patient_file_name):
         patient_files = PatientFiles.query.filter_by(name=patient_file_name)
     if patient_files == None or patient_files.first() == None:
         flash('Dossier inconnu', 'danger')
-        return redirect(reqeust.url)
+        return redirect(request.url)
     patient_files = patient_files.first()
     form = UploadFileForm(request.form)
     if request.method == 'POST' and form.validate():

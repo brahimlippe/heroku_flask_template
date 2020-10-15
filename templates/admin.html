@@ -11,7 +11,7 @@
         <div class="form-row my-3">{{ form.submit }}</div>
       </form>
     </div>
-    <table class="table table-hover table-striped" data-toggle="table" data-pagination="true"
+    <table id="admin_files_table" class="table table-hover table-striped" data-toggle="table" data-pagination="true"
            data-search="true" data-pagination-parts="['pageSize', 'pageList']">
       <tbody>
 {% for file in files %}
@@ -23,6 +23,15 @@
 {% endfor %}
       </tbody>
     </table>
+    <script>
+      $(function() {
+        $('#admin_files_table').bootstrapTable({
+          formatNoMatches: function () {
+            return 'Aucun dossier en base';
+          }
+        });
+      });
+    </script>
 {% include 'footer.html' %}
     </div>
 </body>

@@ -7,15 +7,31 @@
 {% include 'menu.html' %}
 {% if files | length > 0 and state.lower() == "nouveau" %}
     <div class="row justify-content-center" >
-      <p> Le dossier est en cours d'ouverture. Veuillez télécharger ls 6 scans dentaires, puis validez le dossier.</p>
+      <p> Le dossier est en cours d'ouverture. Le client doit télécharger les 6 scans dentaires, puis validez le dossier.</p>
     </div>
+    {% if not g.current_user.admin %}
     <div class="row justify-content-center" >
       <a class="btn btn-light" href="/valider/{{ id }}"> Valider </a>
     </div>
+    {% endif %}
 {% elif files | length > 0 and state.lower() == "ouvert" %}
     <div class="row justify-content-center" >
-      <p> Le dossier est ouvert et en attente de validation. Vous pouvez toujours rajouter des documents.</p>
+      <p> Le dossier est ouvert et en attente de la validation de l'orthodontiste.</p>
     </div>
+    {% if g.current_user.admin %}
+    <div class="row justify-content-center">
+      <a class="btn btn-light" href="/valider/{{ id }}"> Valider </a>
+    </div>
+    {% endif %}
+{% elif files | length > 0 and state.lower() == "valide" %}
+    <div class="row justify-content-center" >
+      <p> Le dossier est validé. En attente de l'avance du client.</p>
+    </div>
+    {% if g.current_user.admin %}
+    <div class="row justify-content-center">
+      <a class="btn btn-light" href="/valider/{{ id }}"> Avance reçue </a>
+    </div>
+    {% endif %}
 {% endif %}
     <div class="row justify-content-center" >
         <img id="output" src="" width="100" height="100" style="visibility: hidden;" class="m-3">
