@@ -1,13 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, g, send_from_directory
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from wtforms import Form, StringField, validators, SubmitField, PasswordField, MultipleFileField
+from wtforms import Form, StringField, validators, SubmitField, PasswordField, MultipleFileField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt, check_password_hash
 from werkzeug.utils import secure_filename
 from os import path, makedirs, urandom
 from datetime import datetime
+from smtplib import SMTP
+from email.message import EmailMessage
 
 app = Flask(__name__)
 app.secret_key = urandom(16)
@@ -79,6 +81,13 @@ class File(db.Model):
     def __repr__(self):
         return '<File Original name: %r / Path: %r>' % (self.name, self.path)
 
+class ContactForm(Form):
+    name = StringField(validators=[validators.required()], render_kw={'placeholder':'Nom', 'class': 'form-control', 'style': 'background-color:rgba(255,255,255,0.5);'})
+    subject = StringField(validators=[validators.required()], render_kw={'placeholder':'Sujet', 'class': 'form-control', 'style': 'background-color:rgba(255,255,255,0.5);'})
+    email = EmailField(validators=[validators.required()], render_kw={'placeholder':'Email', 'class': 'form-control', 'style': 'background-color:rgba(255,255,255,0.5);'})
+    message = TextAreaField(validators=[validators.required()], render_kw={'placeholder':'Message', 'class': 'form-control', 'style': 'background-color:rgba(242,242,242,0.5);', 'rows': '8'})
+    submit = SubmitField(render_kw={'class': 'btn-light my-3 col-2', 'value': 'Envoyer', 'style': 'background-color:rgba(242,242,242,0.5)'})
+
 class LoginForm(Form):
     username = StringField(validators=[validators.required()], render_kw={'placeholder':'Nom'})
     password = PasswordField(validators=[validators.required()], render_kw={'placeholder':'Mot de passe'})
@@ -112,17 +121,6 @@ def default(): return render_template('index.html')
 
 @app.route('/index.html')
 def index(): return render_template('index.html')
-
-@app.route('/email.html')
-def email():
-    #msg = Message("Hello",
-    #        sender="website",
-    #        recipients=["brahim.pro@protonmail.com"])
-    #msg.body = "testing"
-    #msg.html = "<b>testing</b>"
-    #mail.send(msg)
-    flash("Fonctionalité indisponible", "danger")
-    return redirect(url_for('contact'))
 
 @app.route("/logout.html", methods=["GET"])
 @login_required
@@ -180,8 +178,38 @@ def member():
     files = PatientFiles.query.filter_by(doctor_name=current_user.name)
     return render_template("/member.html", form=form, files=files)
 
-@app.route('/contact.html')
-def contact(): return render_template('contact.html')
+def send_mail(receiver, subject, body):
+    app.logger.info("Instantiating SMTP server")
+    with SMTP('smtp.gmail.com:587', timeout=5) as server:
+        app.logger.info("EHLO")
+        server.ehlo()
+        app.logger.info("Start TLS")
+        server.starttls()
+        app.logger.info("EHLO")
+        server.ehlo()
+        app.logger.info("Logging to SMTP server")
+        server.login('brahimalekhine@gmail.com', 'alekhinebrahim')
+        email = EmailMessage()
+        email.set_content(body)
+        email['From'] = 'noreply@ortonabeul.tn'
+        email['To'] = receiver
+        email['Subject'] = subject
+        message = f"Subject: {subject}\n\n{body}"
+        app.logger.info("Sending email")
+        server.send_message(email)
+
+@app.route('/contact.html', methods=['GET', 'POST'])
+def contact():
+    form = ContactForm(request.form)
+    if request.method == 'POST' and form.validate():
+        try:
+            message = 'Nom: %s\r\nEmail: %s\r\n %s' % (form.name.data, form.email.data, form.message.data)
+            send_mail("brahim.pro@protonmail.com", request.form['subject'], message)
+            flash("Message envoyé", "success")
+        except Exception as e:
+            app.logger.error(str(e))
+            flash("Une erreur technique est survenue, veuillez contacter le cabinet par téléphone", "danger")
+    return render_template('contact.html', form=form)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
