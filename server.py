@@ -34,6 +34,7 @@ class User(db.Model):
 
     name = db.Column(db.String, primary_key=True)
     password = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
     authenticated = db.Column(db.Boolean, default=False)
     admin = db.Column(db.Boolean, default=False)
 
@@ -102,10 +103,11 @@ class NewFileForm(Form):
     submit = SubmitField(render_kw={'value': 'Nouveau dossier'})
 
 def duplicate_doctor_name_check(form, field):
-    User.query.filter_by(doctor_name=field.data)
-    return PatientFiles != None
+    doctors = User.query.filter_by(email=field.data)
+    return doctors == None or doctors.first() == None
+
 class RegisterForm(Form):
-    mail = EmailField(validators=[validators.required(), duplicate_doctor_name_check],
+    email = EmailField(validators=[validators.required(), duplicate_doctor_name_check],
                        render_kw={'placeholder':'Email client'})
     submit = SubmitField(render_kw={'value': 'Envoyer email d\'enregistrement'})
 
@@ -151,21 +153,20 @@ def login():
             return redirect(url_for("member"))
     return render_template('/login.html', form=form)
 
-@app.route('/register.html', methods=['POST'])
-@login_required
-def register():
-    if not current_user.admin:
-        flash('Vous n\'avez pas le droit d\'enregistrer un client', 'danger')
-        return redirect(url_for('index'))
-    flash('Fonctionalité indisponible', 'danger')
-    return redirect(url_for('admin'))
-@app.route('/admin.html', methods=['GET'])
+@app.route('/admin.html', methods=['GET', 'POST'])
 @login_required
 def admin():
-    form = RegisterForm(request.form)
+    registration_form = RegisterForm(request.form)
+    if request.method == 'POST' and registration_form.validate():
+        if not current_user.admin:
+            flash('Vous n\'avez pas le droit d\'enregistrer un client', 'danger')
+            return redirect(url_for('index'))
+        flash('Email envoyé', 'success')
+        send_mail(registration_form.email.data, "Email d'enregistrement au service en ligne d'Amel Ben Brahim",
+                  "Fonctionalité indisponible")
     if not current_user.admin: return redirect(url_for('member'))
     files = PatientFiles.query.all()
-    return render_template('admin.html', files = files, form = form)
+    return render_template('admin.html', files = files, registration_form = registration_form)
 
 @app.route('/member.html', methods=['GET', 'POST'])
 @login_required

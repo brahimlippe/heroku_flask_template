@@ -6,9 +6,9 @@
     <div class="container">
 {% include 'menu.html' %}
     <div class="row justify-content-center">
-      <form style="opacity:0.5" action="/register.html" method="post">
-        <div class="form-row my-3">{{ form.mail }}</div>
-        <div class="form-row my-3">{{ form.submit }}</div>
+      <form style="opacity:0.5" action="" method="post">
+        <div class="form-row my-3">{{ registration_form.email }}</div>
+        <div class="form-row my-3">{{ registration_form.submit }}</div>
       </form>
     </div>
     <table id="admin_files_table" class="table table-hover table-striped" data-toggle="table" data-pagination="true"
