@@ -6,7 +6,7 @@ from wtforms.fields.html5 import EmailField
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt, check_password_hash
 from werkzeug.utils import secure_filename
-from os import path, makedirs, urandom
+from os import path, makedirs, urandom, environ
 from datetime import datetime
 from smtplib import SMTP
 from email.message import EmailMessage
@@ -17,7 +17,7 @@ mail = Mail()
 mail.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./database.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ['DATABASE_URL']
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 ALLOWED_EXTENSIONS = { 'png', 'jpg', 'jpeg', 'gif' }
@@ -106,7 +106,7 @@ def duplicate_doctor_name_check(form, field):
     doctors = User.query.filter_by(email=field.data)
     return doctors == None or doctors.first() == None
 
-class RegisterForm(Form):
+class NewClient(Form):
     email = EmailField(validators=[validators.required(), duplicate_doctor_name_check],
                        render_kw={'placeholder':'Email client'})
     submit = SubmitField(render_kw={'value': 'Envoyer email d\'enregistrement'})
@@ -153,20 +153,23 @@ def login():
             return redirect(url_for("member"))
     return render_template('/login.html', form=form)
 
+@app.route('/register.html/<id>')
+def register(id):
+    return "Registration page"
 @app.route('/admin.html', methods=['GET', 'POST'])
 @login_required
 def admin():
-    registration_form = RegisterForm(request.form)
-    if request.method == 'POST' and registration_form.validate():
+    form = NewClient(request.form)
+    if request.method == 'POST' and form.validate():
         if not current_user.admin:
             flash('Vous n\'avez pas le droit d\'enregistrer un client', 'danger')
             return redirect(url_for('index'))
         flash('Email envoyé', 'success')
-        send_mail(registration_form.email.data, "Email d'enregistrement au service en ligne d'Amel Ben Brahim",
+        send_mail(form.email.data, "Email d'enregistrement au service en ligne d'Amel Ben Brahim",
                   "Fonctionalité indisponible")
     if not current_user.admin: return redirect(url_for('member'))
     files = PatientFiles.query.all()
-    return render_template('admin.html', files = files, registration_form = registration_form)
+    return render_template('admin.html', files = files, form = form)
 
 @app.route('/member.html', methods=['GET', 'POST'])
 @login_required
