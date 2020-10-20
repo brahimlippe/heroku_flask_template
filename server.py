@@ -4,7 +4,8 @@ from flask_login import LoginManager, login_required, login_user, current_user, 
 from wtforms import Form, StringField, validators, SubmitField, PasswordField, MultipleFileField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt, check_password_hash
+from sqlalchemy.types import TIMESTAMP
+from flask_bcrypt import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from os import path, makedirs, urandom, environ
 from datetime import datetime
@@ -19,7 +20,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ['DATABASE_URL']
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
 ALLOWED_EXTENSIONS = { 'png', 'jpg', 'jpeg', 'gif' }
 app.config['UPLOAD_FOLDER'] = path.dirname(path.realpath(__file__)) + '/uploads'
 
@@ -81,6 +81,16 @@ class File(db.Model):
 
     def __repr__(self):
         return '<File Original name: %r / Path: %r>' % (self.name, self.path)
+
+class RegisterRequests(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, nullable=False)
+    request_time = db.Column('timestamp', TIMESTAMP(timezone=False),
+                             nullable=False, default=datetime.now())
+db.create_all()
+if User.query.filter_by(admin=True).first() == None:
+    db.session.add(User(name='admin', password=generate_password_hash('secret', 10),
+                        admin=True, email='brahim.pro@protonmail.com'))
 
 class ContactForm(Form):
     name = StringField(validators=[validators.required()], render_kw={'placeholder':'Nom', 'class': 'form-control', 'style': 'background-color:rgba(255,255,255,0.5);'})
@@ -156,6 +166,7 @@ def login():
 @app.route('/register.html/<id>')
 def register(id):
     return "Registration page"
+
 @app.route('/admin.html', methods=['GET', 'POST'])
 @login_required
 def admin():
@@ -165,8 +176,13 @@ def admin():
             flash('Vous n\'avez pas le droit d\'enregistrer un client', 'danger')
             return redirect(url_for('index'))
         flash('Email envoyé', 'success')
+        register_request = RegisterRequests(email=form.email.data)
+        db.session.add(register_request)
+        db.session.commit()
+        link = request.url_root + 'register.html/' + str(register_request.id)
+        message = "Cliquer sur le lien pour vous enregistrer dans la plateforme de Amel Ben Brahim\r\n" + link
         send_mail(form.email.data, "Email d'enregistrement au service en ligne d'Amel Ben Brahim",
-                  "Fonctionalité indisponible")
+                  message)
     if not current_user.admin: return redirect(url_for('member'))
     files = PatientFiles.query.all()
     return render_template('admin.html', files = files, form = form)
